@@ -1,5 +1,3 @@
-// todo: 把核函数中使用的vector变为数组
-
 #include "common.h"
 #include "codecs.h"
 #include "time.h"
@@ -53,19 +51,9 @@ struct alignas(8) Segment {
 
 
 
-    // std::vector<uint32_t> segment_index;
-    // std::vector<uint32_t> segment_length;
-
-    // std::vector<uint8_t*> block_start_vec_total;
-    // std::vector<uint32_t> segment_index_total;
-    // std::vector<uint32_t> segment_length_total;
-
-    // std::vector<KeyValue<uint32_t>> art_build_vec;
-    // std::vector<std::pair<int, int>> alex_build_vec;
-    // std::vector<ART32::Node*> search_node;    //! 无用
       
 template <typename T>
-struct lr_int_T_cuda{//theta0+theta1*x
+struct lr_int_T_cuda{
     double theta0;
     double theta1;
 
@@ -94,10 +82,9 @@ __device__ void caltheta_cuda(const T *y, int m){
 };
 
 __device__ void print_int128(__int128 num) {
-// 分解为高64位和低64位
 uint64_t high = (uint64_t)(num >> 64);
 uint64_t low = (uint64_t)num;
-// 输出高64位和低64位的十六进制表示
+
 printf("0x%016lX%016lX\n", high, low);
 }
 
@@ -142,16 +129,6 @@ __device__ void read_all_bit_fix_gpu(const uint8_t* in, int start_byte, int star
                 {
                     decode_val = decode_val + tmpval;
                 }
-
-                // if (tid == 1)
-                //     printf("decode_val = %lx, res addr = %p\n", decode_val, res);
-
-                // if (index == 10379)
-                //     printf("decode_val = %lu\n", decode_val);
-                
-
-                // if (decode_val == 77308810092)
-                //     printf("Find TID = %d\n", tid);
 
                 *res = (T)decode_val;
                 res++;
@@ -302,15 +279,10 @@ __device__ void read_all_bit_fix_gpu(const uint8_t* in, int start_byte, int star
                 T tmpnum = in[readind];
 
 
-                // if (index == 10379)
-                // {
-                //     count_loc ++ ;
-                //     printf("tmpnum = %u, count_loc = %d\n", tmpnum, count_loc);
-                // }
                 bool sign = signvec[readind];
                 T value1 =
-                    (tmpnum & (((T)1 << (uint8_t)(l - 1)) - 1))     //* 外面传进来的 max_bit 是数值位数 + 1, 所以这里的掩码 (l - 1) 就是数值位数
-                + (((T)sign) << (uint8_t)(l - 1));         //* 在解码函数中，sign为1的加，sign为0的减
+                    (tmpnum & (((T)1 << (uint8_t)(l - 1)) - 1))     
+                + (((T)sign) << (uint8_t)(l - 1));      
 
 
                 code += ((uint128_t)value1 << (uint8_t)occupy);
@@ -355,33 +327,9 @@ __device__ void read_all_bit_fix_gpu(const uint8_t* in, int start_byte, int star
     int block_size;
     int segment_index_total_idx = 0;
 
-    // //start_index + bit + theta0 + theta1 + numbers + delta
-    // __device__ void init(int blocks, int blocksize, uint64_t delta) {
-    //     block_num = blocks;
-    //     block_size = blocksize;
-    //     overhead = delta; // add some punishing item
-
-    // }
-
-    // stx::btree_map<int, int> btree_total;
     alex::Alex<int, int> alex_tree;
     ART32 art;
 
-    // __device__ uint32_t lower_bound(uint64_t v, uint32_t len, std::vector<uint32_t>& index)
-    // {
-    //     uint32_t m;
-    //     uint32_t x = 0;
-    //     uint32_t y = len - 1;
-    //     while (x <= y)
-    //     {
-
-    //         m = x + (y - x) / 2;
-    //         if (v < index[m]) y = m - 1;
-    //         else x = m + 1;
-    //     }
-    //     return y;
-
-    // }
 
     template <typename T>
     __device__ uint64_t newsegment_size(uint32_t origin_index, uint32_t end_index, T *array, int block_size, int tid) {

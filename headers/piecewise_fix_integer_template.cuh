@@ -138,8 +138,8 @@ namespace Codecset
                 T tmpnum = in[readind];
                 bool sign = signvec[readind];
                 T value1 =
-                    (tmpnum & (((T)1 << (uint8_t)(l - 1)) - 1))     //* 外面传进来的 max_bit 是数值位数 + 1, 所以这里的掩码 (l - 1) 就是数值位数
-                + (((T)sign) << (uint8_t)(l - 1));         //* 在解码函数中，sign为1的加，sign为0的减
+                    (tmpnum & (((T)1 << (uint8_t)(l - 1)) - 1))    
+                + (((T)sign) << (uint8_t)(l - 1));        
 
 
                 code += ((uint128_t)value1 << (uint8_t)occupy);
@@ -349,21 +349,6 @@ namespace Codecset
                 //     printf("Last block out[%d] = %llx, y[%d] = %llx\n", i, (uint64_t*)out, i, y[i]);
                 out += sizeof(T);
             }
-
-            // if (tid == blocks - 1)
-            // {
-            //     int start = 0;
-            //     for (int i = 0;i < local_block_length;i ++ )
-            //     {
-            //         uint64_t tmp_64;
-
-            //         memcpy(&tmp_64, ptr + start * 8, sizeof(uint64_t));
-
-            //         printf("last tmp_64 = %lu\n", tmp_64);
-            //         start ++ ;
-
-            //     }
-            // }
 
             uint32_t tmp_size = out - pointers[tid];
             
